@@ -652,10 +652,15 @@
 
         // Create the force simulation
         const simulation = d3.forceSimulation(nodes)
-        .force('charge', d3.forceManyBody().strength(5))
+        .force('charge', d3.forceManyBody().strength(10))
         .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('collision', d3.forceCollide().radius(d => fontSizeScale(d.frequency) + 10))
-        .on('tick', ticked);
+        .force('collision', d3.forceCollide().radius(d => fontSizeScale(d.frequency) + 7))
+        .on('tick', ticked)
+        .on('end', () => {
+        // Stops the simulation once a stable layout is reached
+            simulation.stop();
+        });
+
 
         // Prepare a map of related words
         const relatedWordsMap = {};
@@ -711,38 +716,44 @@
         }
 
         function resetHighlights() {
-        anyWordSelected = false;
-        svg.selectAll('text').style('opacity', 1);
+            anyWordSelected = false;
+            svg.selectAll('text').style('opacity', 1);
         }
 
         function showEmails(d) {
-        const emailDetails = document.getElementById('emailDetails');
-        emailDetails.innerHTML = data[d.keyword].join('<br>');
-        emailDetails.style.display = 'block';
+            const emailDetails = document.getElementById('emailDetails');
+            emailDetails.innerHTML = data[d.keyword].join('<br>');
+            emailDetails.style.display = 'block';
         }
 
         function hideEmails() {
-        const emailDetails = document.getElementById('emailDetails');
-        emailDetails.style.display = 'none';
+            const emailDetails = document.getElementById('emailDetails');
+            emailDetails.style.display = 'none';
         }
 
         // Function to position and style text elements
+        
         function ticked() {
-        const textElements = svg.selectAll('text')
-        .data(nodes, d => d.keyword)
-        .join('text')
-        .text(d => d.keyword)
-        .style('font-size', d => fontSizeScale(d.frequency) + 'px')
-        .attr('x', d => d.x)
-        .attr('y', d => d.y)
-        .attr('text-anchor', 'middle')
-        .attr('alignment-baseline', 'middle')
-        .style('fill', 'black')
-        .on('mouseover', mouseoverHandler)
-        .on('mouseout', mouseoutHandler)
-        .on('click', clickHandler)
-        .style('cursor', 'pointer');
+            const textElements = svg.selectAll('text')
+                .data(nodes, d => d.keyword)
+                .join('text')
+                .text(d => d.keyword)
+                .style('font-size', d => fontSizeScale(d.frequency) + 'px')
+                .attr('x', d => d.x)
+                .attr('y', d => d.y)
+                .attr('text-anchor', 'middle')
+                .attr('alignment-baseline', 'middle')
+                .style('fill', 'black')
+                .on('mouseover', mouseoverHandler)
+                .on('mouseout', mouseoutHandler)
+                .on('click', clickHandler)
+                .style('cursor', 'pointer');
+        
+            textElements
+                .attr('x', d => d.x)
+                .attr('y', d => d.y);
         }
+        
 
 
         // Start the simulation
