@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Word Cloud</title>
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <style>
+        #wordCloud text {
+            transition: opacity 0.5s ease;
+            cursor: pointer;
+        }
+
+        #wordCloud text:hover {
+            transform: scale(1.1);
+        }
+
+        #emailDetails {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            display: none; /* Hidden by default */
+        }
+    </style>
+</head>
+<body>
+    <div id="wordCloud"></div>
+    <div id="emailDetails"></div>
+
+    <script>
+        // Load your JSON data (initially as an array of objects)
+        const rawData = [
+        {
+        "email": "alyakukulina@gmail.com",
+        "keywords": "reconstruction"
+        },
+        {
+        "email": "alyakukulina@gmail.com",
+        "keywords": "photography"
+        },
+        {
+        "email": "alyakukulina@gmail.com",
+        "keywords": "historical images"
+        },
+        {
+        "email": "alyakukulina@gmail.com",
+        "keywords": "panel"
+        },
+        {
+        "email": "alyakukulina@gmail.com",
+        "keywords": "tile"
+        },
+        {
+        "email": "alyakukulina@gmail.com",
+        "keywords": "glaze"
+        },
+        {
+        "email": "alyakukulina@gmail.com",
+        "keywords": "texture"
+        },
+        {
+        "email": "alyakukulina@gmail.com",
+        "keywords": "lighting"
+        },
+        {
+        "email": "alyakukulina@gmail.com",
+        "keywords": "pattern"
+        },
+        {
+        "email": "hmak24@amherst.edu",
+        "keywords": "Provenance"
+        },
+        {
+        "email": "hmak24@amherst.edu",
+        "keywords": "Museum"
+        },
+        {
+        "email": "hmak24@amherst.edu",
+        "keywords": "Metadata"
+        },
+        {
+        "email": "hmak24@amherst.edu",
+        "keywords": "Materiality"
+        },
+        {
+        "email": "hmak24@amherst.edu",
+        "keywords": "textile"
+        },
+        {
+        "email": "hmak24@amherst.edu",
+        "keywords": "Chintz"
+        },
+        {
+        "email": "hmak24@amherst.edu",
+        "keywords": "Chair"
+        },
+        {
+        "email": "hmak24@amherst.edu",
+        "keywords": "Collecting"
+        },
+        {
+        "email": "hmak24@amherst.edu",
+        "keywords": "American"
+        },
+        {
+        "email": "hmak24@amherst.edu",
+        "keywords": "New England"
+        },
+        {
+        "email": "zwatson24@amherst.edu",
+        "keywords": "painting"
+        },
+        {
+        "email": "zwatson24@amherst.edu",
+        "keywords": "science"
+        },
+        {
+        "email": "zwatson24@amherst.edu",
+        "keywords": "identification"
+        },
+        {
+        "email": "zwatson24@amherst.edu",
+        "keywords": "plant"
+        },
+        {
+        "email": "zwatson24@amherst.edu",
+        "keywords": "data"
+        },
+        {
+        "email": "wvince26@amherst.edu",
+        "keywords": "Horse"
+        },
+        {
+        "email": "zadorno26@amherst.edu",
+        "keywords": "textile"
+        },
+        {
+        "email": "zadorno26@amherst.edu",
+        "keywords": "banyan"
+        },
+        {
+        "email": "zadorno26@amherst.edu",
+        "keywords": "global trade"
+        },
+        {
+        "email": "zadorno26@amherst.edu",
+        "keywords": "history"
+        },
+        {
+        "email": "zadorno26@amherst.edu",
+        "keywords": "chintz"
+        },
+        {
+        "email": "zadorno26@amherst.edu",
+        "keywords": "portraits"
+        },
+        {
+        "email": "zadorno26@amherst.edu",
+        "keywords": "material culture"
+        },
+        {
+        "email": "hschep24@amherst.edu",
+        "keywords": "contemporary art"
+        },
+        {
+        "email": "hschep24@amherst.edu",
+        "keywords": "miniature painting"
+        },
+        {
+        "email": "hschep24@amherst.edu",
+        "keywords": "digital art"
+        },
+        {
+        "email": "hschep24@amherst.edu",
+        "keywords": "political commentary"
+        },
+        {
+        "email": "hschep24@amherst.edu",
+        "keywords": "photography"
+        },
+        {
+        "email": "hschep24@amherst.edu",
+        "keywords": "collage"
+        },
+        {
+        "email": "qsmith016@gmail.com",
+        "keywords": "contemporary"
+        },
+        {
+        "email": "qsmith016@gmail.com",
+        "keywords": "indian"
+        },
+        {
+        "email": "qsmith016@gmail.com",
+        "keywords": "sculpture"
+        },
+        {
+        "email": "qsmith016@gmail.com",
+        "keywords": "social media"
+        },
+        {
+        "email": "qsmith016@gmail.com",
+        "keywords": "woman artist"
+        },
+        {
+        "email": "jdenyse25@amherst.edu",
+        "keywords": "ceramics"
+        },
+        {
+        "email": "jdenyse25@amherst.edu",
+        "keywords": "Provenance"
+        },
+        {
+        "email": "jdenyse25@amherst.edu",
+        "keywords": "Trade"
+        },
+        {
+        "email": "jdenyse25@amherst.edu",
+        "keywords": "Blue"
+        },
+        {
+        "email": "jdenyse25@amherst.edu",
+        "keywords": "White"
+        },
+        {
+        "email": "jdenyse25@amherst.edu",
+        "keywords": "Islam"
+        },
+        {
+        "email": "jdenyse25@amherst.edu",
+        "keywords": "Persian"
+        },
+        {
+        "email": "jdenyse25@amherst.edu",
+        "keywords": "Iran"
+        },
+        {
+        "email": "jdenyse25@amherst.edu",
+        "keywords": "Iraq"
+        },
+        {
+        "email": "jdenyse25@amherst.edu",
+        "keywords": "China"
+        },
+        {
+        "email": "yzhou26@amherst.edu",
+        "keywords": "Contextualization"
+        },
+        {
+        "email": "yzhou26@amherst.edu",
+        "keywords": "Provenance"
+        },
+        {
+        "email": "yzhou26@amherst.edu",
+        "keywords": "Relocation"
+        },
+        {
+        "email": "yzhou26@amherst.edu",
+        "keywords": "Fragment"
+        },
+        {
+        "email": "yzhou26@amherst.edu",
+        "keywords": "Buddhism"
+        },
+        {
+        "email": "yzhou26@amherst.edu",
+        "keywords": "Multiculturalism"
+        },
+        {
+        "email": "yzhou26@amherst.edu",
+        "keywords": "Sculpture"
+        },
+        {
+        "email": "yzhou26@amherst.edu",
+        "keywords": "Mead"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "manuscript"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "color"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "materiality"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "religion"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "painting"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "pigment"
+        },
+        {
+        "email": "ekerns24@amherst.edu",
+        "keywords": "Data"
+        },
+        {
+        "email": "ekerns24@amherst.edu",
+        "keywords": "Authorship"
+        },
+        {
+        "email": "ekerns24@amherst.edu",
+        "keywords": "Provenance"
+        },
+        {
+        "email": "ekerns24@amherst.edu",
+        "keywords": "Unknown"
+        },
+        {
+        "email": "ekerns24@amherst.edu",
+        "keywords": "Maker"
+        },
+        {
+        "email": "ekerns24@amherst.edu",
+        "keywords": "Mead Persianate Collection"
+        },
+        {
+        "email": "ekerns24@amherst.edu",
+        "keywords": "painting"
+        },
+        {
+        "email": "ekerns24@amherst.edu",
+        "keywords": "TK Labels"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "museum"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "provenance"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "Shahnama"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "painting"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "animation"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "digital art"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "dispersion"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "manuscript"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "Iran"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "exhibitions"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "auctions"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "art market"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "timeline"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "metaphor"
+        },
+        {
+        "email": "kalears01@gmail.com",
+        "keywords": "art"
+        },
+        {
+        "email": "wvince26@amherst.edu",
+        "keywords": "painting"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "manuscript"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "color"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "materiality"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "religion"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "painting"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "pigment"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "Gujarat"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "India"
+        },
+        {
+        "email": "jpaik24@amherst.edu",
+        "keywords": "Jainism"
+        },
+        {
+        "email": "ekerns24@amherst.edu",
+        "keywords": "India"
+        },
+        {
+        "email": "ekerns24@amherst.edu",
+        "keywords": "Credit line"
+        },
+        {
+        "email": "cammons23@amherst.edu",
+        "keywords": "Provenance"
+        },
+        {
+        "email": "cammons23@amherst.edu",
+        "keywords": "Ceramics"
+        },
+        {
+        "email": "cammons23@amherst.edu",
+        "keywords": "Lustre"
+        },
+        {
+        "email": "cammons23@amherst.edu",
+        "keywords": "Dealers"
+        },
+        {
+        "email": "cammons23@amherst.edu",
+        "keywords": "Archaeology"
+        },
+        {
+        "email": "cammons23@amherst.edu",
+        "keywords": "Iran"
+        },
+        {
+        "email": "cammons23@amherst.edu",
+        "keywords": "Collectors"
+        },
+        {
+        "email": "zadorno26@amherst.edu",
+        "keywords": "India"
+        },
+        {
+        "email": "zadorno26@amherst.edu",
+        "keywords": "clothing"
+        },
+        {
+        "email": "syy21@hampshire.edu",
+        "keywords": "Ramayana"
+        },
+        {
+        "email": "syy21@hampshire.edu",
+        "keywords": "manuscript"
+        },
+        {
+        "email": "syy21@hampshire.edu",
+        "keywords": "digital reconstruction"
+        },
+        {
+        "email": "syy21@hampshire.edu",
+        "keywords": "pahari painting"
+        },
+        {
+        "email": "syy21@hampshire.edu",
+        "keywords": "storytelling"
+        },
+        {
+        "email": "syy21@hampshire.edu",
+        "keywords": "narrative painting"
+        },
+        {
+        "email": "syy21@hampshire.edu",
+        "keywords": "India"
+        },
+        {
+        "email": "syy21@hampshire.edu",
+        "keywords": "Hindu mythology"
+        },
+        {
+        "email": "syy21@hampshire.edu",
+        "keywords": "paper"
+        },
+        {
+        "email": "monemarble@gmail.com",
+        "keywords": "textile"
+        },
+        {
+        "email": "monemarble@gmail.com",
+        "keywords": "pattern"
+        },
+        {
+        "email": "monemarble@gmail.com",
+        "keywords": "design"
+        },
+        {
+        "email": "monemarble@gmail.com",
+        "keywords": "trade"
+        },
+        {
+        "email": "monemarble@gmail.com",
+        "keywords": "usage"
+        },
+        {
+        "email": "monemarble@gmail.com",
+        "keywords": "India"
+        },
+        {
+        "email": "monemarble@gmail.com",
+        "keywords": "Japan"
+        },
+        {
+        "email": "monemarble@gmail.com",
+        "keywords": "digital maps"
+        },
+        {
+        "email": "qal23@hampshire.edu",
+        "keywords": "textile"
+        },
+        {
+        "email": "qal23@hampshire.edu",
+        "keywords": "Dye"
+        },
+        {
+        "email": "qal23@hampshire.edu",
+        "keywords": "Block Print"
+        },
+        {
+        "email": "qal23@hampshire.edu",
+        "keywords": "Indigo"
+        },
+        {
+        "email": "qal23@hampshire.edu",
+        "keywords": "Madder"
+        },
+        {
+        "email": "qal23@hampshire.edu",
+        "keywords": "Materiality"
+        },
+        {
+        "email": "qal23@hampshire.edu",
+        "keywords": "Experiment"
+        },
+        {
+        "email": "szavatoneveth25@amherst.edu",
+        "keywords": "provenance"
+        },
+        {
+        "email": "szavatoneveth25@amherst.edu",
+        "keywords": "collecting"
+        },
+        {
+        "email": "szavatoneveth25@amherst.edu",
+        "keywords": "ceramics"
+        },
+        {
+        "email": "szavatoneveth25@amherst.edu",
+        "keywords": "manuscript"
+        },
+        {
+        "email": "szavatoneveth25@amherst.edu",
+        "keywords": "art market"
+        },
+        {
+        "email": "szavatoneveth25@amherst.edu",
+        "keywords": "donation"
+        },
+        {
+        "email": "szavatoneveth25@amherst.edu",
+        "keywords": "Iran"
+        },
+        {
+        "email": "szavatoneveth25@amherst.edu",
+        "keywords": "India"
+        }
+        ];
+        // rawData should be defined here
+        // const rawData = [ ... ];
+
+        // Transform the data into a suitable format for the word cloud
+        // rawData should be defined here
+        // const rawData = [ ... ];
+
+        // Transform the data into a suitable format for the word cloud
+        const data = {};
+        rawData.forEach(item => {
+        if (!data[item.keywords]) {
+        data[item.keywords] = new Set();
+        }
+        data[item.keywords].add(item.email);
+        });
+
+        // Convert sets to arrays for easier handling
+        Object.keys(data).forEach(keyword => {
+        data[keyword] = Array.from(data[keyword]);
+        });
+
+        // Create nodes for the force simulation
+        const nodes = Object.keys(data).map(keyword => {
+        return {
+        keyword,
+        frequency: data[keyword].length,
+        isSelected: false
+        };
+        });
+
+        // Flag to track if any word is currently selected
+        let anyWordSelected = false;
+
+        // Dimensions for the SVG container
+        const width = 800;
+        const height = 800;
+
+        // Create an SVG container
+        const svg = d3.select('#wordCloud').append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+        // Create a scale for the font sizes
+        const fontSizeScale = d3.scaleSqrt()
+        .domain(d3.extent(nodes, d => d.frequency))
+        .range([10, 50]);
+
+        // Create the force simulation
+        const simulation = d3.forceSimulation(nodes)
+        .force('charge', d3.forceManyBody().strength(5))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(d => fontSizeScale(d.frequency) + 10))
+        .on('tick', ticked);
+
+        // Prepare a map of related words
+        const relatedWordsMap = {};
+        Object.keys(data).forEach(keyword => {
+        data[keyword].forEach(email => {
+        if (!relatedWordsMap[email]) {
+            relatedWordsMap[email] = new Set();
+        }
+        relatedWordsMap[email].add(keyword);
+        });
+        });
+
+        Object.keys(relatedWordsMap).forEach(email => {
+        relatedWordsMap[email] = Array.from(relatedWordsMap[email]);
+        });
+
+        // Event handler functions
+        function mouseoverHandler(event, d) {
+        if (!anyWordSelected) {
+        highlightRelatedWords(d, 'red');
+        }
+        }
+
+        function mouseoutHandler(event, d) {
+        if (!anyWordSelected) {
+        resetHighlights();
+        }
+        }
+
+        function clickHandler(event, d) {
+        event.stopPropagation();  // Use the event argument directly
+
+        d.isSelected = !d.isSelected;
+        anyWordSelected = nodes.some(node => node.isSelected);
+
+        if (d.isSelected) {
+        highlightRelatedWords(d, true);
+        showEmails(d);
+        } else {
+        resetHighlights();
+        hideEmails();
+        }
+        }
+
+
+        function highlightRelatedWords(d, isHighlighted) {
+        const relatedKeywords = new Set();
+        data[d.keyword].forEach(email => {
+        relatedWordsMap[email].forEach(keyword => relatedKeywords.add(keyword));
+        });
+
+        svg.selectAll('text').style('opacity', node => relatedKeywords.has(node.keyword) ? 1 : 0);
+        }
+
+        function resetHighlights() {
+        anyWordSelected = false;
+        svg.selectAll('text').style('opacity', 1);
+        }
+
+        function showEmails(d) {
+        const emailDetails = document.getElementById('emailDetails');
+        emailDetails.innerHTML = data[d.keyword].join('<br>');
+        emailDetails.style.display = 'block';
+        }
+
+        function hideEmails() {
+        const emailDetails = document.getElementById('emailDetails');
+        emailDetails.style.display = 'none';
+        }
+
+        // Function to position and style text elements
+        function ticked() {
+        const textElements = svg.selectAll('text')
+        .data(nodes, d => d.keyword)
+        .join('text')
+        .text(d => d.keyword)
+        .style('font-size', d => fontSizeScale(d.frequency) + 'px')
+        .attr('x', d => d.x)
+        .attr('y', d => d.y)
+        .attr('text-anchor', 'middle')
+        .attr('alignment-baseline', 'middle')
+        .style('fill', 'black')
+        .on('mouseover', mouseoverHandler)
+        .on('mouseout', mouseoutHandler)
+        .on('click', clickHandler)
+        .style('cursor', 'pointer');
+        }
+
+
+        // Start the simulation
+        simulation.restart();
+
+    </script>
+</body>
+</html>
